@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: AWS SAM template for deploying a lambda function
+
+Parameters:
+   EnvironmentName:
+      Type: String
+      Description: Used in resource naming to associate resources with a stack
+
+   DriverFunctionMemorySize:
+      Type: Number
+      Description: Lambda function memory size setting in megabytes
+
+   DriverFunctionTtlInSeconds:
+      Type: Number
+      Description: Lambda function timeout setting in seconds
+
+   LogRetentionInDays:
+      Type: Number
+      Description: Number of days to keep log streams in CloudWatch
+
+Resources:
+   DriverFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+         Runtime: nodejs12.x
+         Handler: src/index.handler
+         CodeUri: ../dist.zip
+         Timeout: !Ref DriverFunctionTtlInSeconds
+         MemorySize: !Ref DriverFunctionMemorySize
+         Description: Run Chromium in a Lambda
+
+   DriverRole:
+      Type: AWS::IAM::Role
+      Properties:
+         Path: '/'
+         AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: Allow
+                 Action: sts:AssumeRole
+                 Principal:
+                    Service: lambda.amazonaws.com
+
+   DriverLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+         LogGroupName: !Sub /aws/lambda/${DriverFunction}
+         RetentionInDays: !Ref LogRetentionInDays
+
+   LoggingPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+         PolicyName: LoggingPolicy
+         PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: Allow
+                 Action:
+                    - logs:Create*
+                    - logs:PutLogEvents
+                 Resource:
+                    - !GetAtt DriverLogGroup.Arn
+         Roles:
+            - !Ref DriverRole

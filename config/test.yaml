@@ -1,0 +1,6 @@
+Environment:
+   Environment: test
+CloudFormation:
+   EnvironmentName: ${Environment}-${Region}
+Tags:
+   Application: ${StackName}

@@ -1,0 +1,18 @@
+{
+   "curly": true,
+   "eqeqeq": true,
+   "undef": true,
+   "noempty": true,
+   "node": true,
+   "esversion": 8,
+   "multistr": true,
+   "globals": {
+      "context": false,
+      "describe": false,
+      "it": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false
+   }
+}

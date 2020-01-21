@@ -1,0 +1,16 @@
+Environment:
+   Region: us-west-2
+   Environment: test
+   StackName: chromium-lambda-${Environment}-${Region}
+   DeploymentBucket: deployment.${Region}
+   DeploymentPrefix: ${StackName}
+   Profile: default
+CloudFormation:
+   EnvironmentName: ${Environment}-${Region}
+   LogRetentionInDays: 7
+   DriverFunctionMemorySize: 3008
+   DriverFunctionTtlInSeconds: 120
+Tags:
+   Email: jim.gisler@gmail.com
+   Application: ${StackName}
+   EnvironmentName: ${Environment}-${Region}

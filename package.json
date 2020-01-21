@@ -1,0 +1,47 @@
+{
+   "name": "chromium-lambda",
+   "version": "1.0.0",
+   "description": "Run Chrome in an AWS lambda function",
+   "main": "src/index.js",
+   "config": {
+      "scripts_dir": "scripts/npm",
+      "scripts_repo": "https://github.com/jgisler/npm-scripts"
+   },
+   "scripts": {
+      "getScripts": "git clone ${npm_package_config_scripts_repo} ${npm_package_config_scripts_dir}",
+      "clean": "rimraf node_modules *-out.yaml dist.zip scripts/npm && npm install && npm run getScripts",
+      "zip": "${npm_package_config_scripts_dir}/zip.sh",
+      "deploy": "${npm_package_config_scripts_dir}/cf_deploy.sh $1",
+      "package": "npm run zip && ${npm_package_config_scripts_dir}/cf_package.sh $1",
+      "config": "npx rimraf .env && ${npm_package_config_scripts_dir}/config.js $1",
+      "test": "npx mocha test/ --recursive",
+      "deploy:": "npm run cf:deploy $1 && npm install",
+      "deploy:test": "npm install && npm run config test && npm run package app && npm run deploy app"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/jgisler/chromium-lambda.git"
+   },
+   "keywords": [
+      "AWS",
+      "Serverless",
+      "Lambda",
+      "Chromium",
+      "Node"
+   ],
+   "author": "James Gisler",
+   "license": "Apache-2.0",
+   "bugs": {
+      "url": "https://github.com/jgisler/chromium-lambda/issues"
+   },
+   "homepage": "https://github.com/jgisler/chromium-lambda#readme",
+   "devDependencies": {
+      "config": "^3.2.5",
+      "js-yaml": "^3.13.1"
+   },
+   "dependencies": {
+      "chrome-aws-lambda": "^2.0.2",
+      "express": "^4.17.1",
+      "puppeteer-core": "^2.0.0"
+   }
+}
