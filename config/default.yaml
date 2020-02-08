@@ -10,6 +10,8 @@ CloudFormation:
    LogRetentionInDays: 7
    DriverFunctionMemorySize: 3008
    DriverFunctionTtlInSeconds: 120
+   PdfMergerFunctionMemorySize: 3008
+   PdfMergerFunctionTtlInSeconds: 900
 Tags:
    Email: jim.gisler@gmail.com
    Application: ${StackName}

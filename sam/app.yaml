@@ -15,17 +15,51 @@ Parameters:
       Type: Number
       Description: Lambda function timeout setting in seconds
 
+   PdfMergerFunctionMemorySize:
+      Type: Number
+      Description: Lambda function memory size setting in megabytes
+
+   PdfMergerFunctionTtlInSeconds:
+      Type: Number
+      Description: Lambda function timeout setting in seconds
+
    LogRetentionInDays:
       Type: Number
       Description: Number of days to keep log streams in CloudWatch
 
+Globals:
+   Function:
+      Runtime: nodejs12.x
+
 Resources:
+   PdfBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+         BucketName: !Sub pdf-bucket-${EnvironmentName}
+         BucketEncryption:
+            ServerSideEncryptionConfiguration:
+               - ServerSideEncryptionByDefault:
+                    SSEAlgorithm: AES256
+
+   BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+         Bucket: !Ref PdfBucket
+         PolicyDocument:
+            Statement:
+               - Effect: Allow
+                 Action:
+                    - s3:*
+                 Principal:
+                    AWS: !GetAtt PdfMergerRole.Arn
+                 Resource: !GetAtt PdfBucket.Arn
+
    DriverFunction:
       Type: AWS::Serverless::Function
       Properties:
-         Runtime: nodejs12.x
-         Handler: src/index.handler
          CodeUri: ../dist.zip
+         Role: !Sub ${DriverRole.Arn}
+         Handler: src/index.handler
          Timeout: !Ref DriverFunctionTtlInSeconds
          MemorySize: !Ref DriverFunctionMemorySize
          Description: Run Chromium in a Lambda
@@ -48,6 +82,37 @@ Resources:
          LogGroupName: !Sub /aws/lambda/${DriverFunction}
          RetentionInDays: !Ref LogRetentionInDays
 
+   PdfMergerFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+         CodeUri: ../dist.zip
+         Handler: src/pdf.merger
+         Role: !Sub ${PdfMergerRole.Arn}
+         Timeout: !Ref PdfMergerFunctionTtlInSeconds
+         MemorySize: !Ref PdfMergerFunctionMemorySize
+         Description: Merge PDFs into S3
+         Environment:
+            Variables:
+               PDF_BUCKET: !Ref PdfBucket
+
+   PdfMergerRole:
+      Type: AWS::IAM::Role
+      Properties:
+         Path: '/'
+         AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: Allow
+                 Action: sts:AssumeRole
+                 Principal:
+                    Service: lambda.amazonaws.com
+
+   PdfMergerLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+         LogGroupName: !Sub /aws/lambda/${PdfMergerFunction}
+         RetentionInDays: !Ref LogRetentionInDays
+
    LoggingPolicy:
       Type: AWS::IAM::Policy
       Properties:
@@ -63,3 +128,19 @@ Resources:
                     - !GetAtt DriverLogGroup.Arn
          Roles:
             - !Ref DriverRole
+            - !Ref PdfMergerRole
+
+   PdfBucketPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+         PolicyName: PdfBucketPolicy
+         PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: Allow
+                 Action:
+                    - s3:*
+                 Resource:
+                    - !GetAtt PdfBucket.Arn
+         Roles:
+            - !Ref PdfMergerRole

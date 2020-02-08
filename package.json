@@ -36,12 +36,20 @@
    },
    "homepage": "https://github.com/jgisler/chromium-lambda#readme",
    "devDependencies": {
+      "aws-sdk": "^2.614.0",
+      "aws-sdk-mock": "^5.0.0",
+      "chai": "^4.2.0",
       "config": "^3.2.5",
-      "js-yaml": "^3.13.1"
+      "js-yaml": "^3.13.1",
+      "mocha": "^7.0.1",
+      "modclean": "^3.0.0-beta.1"
    },
    "dependencies": {
+      "axios": "^0.19.2",
       "chrome-aws-lambda": "^2.0.2",
       "express": "^4.17.1",
-      "puppeteer-core": "^2.0.0"
+      "node-pdftk": "^2.1.2",
+      "puppeteer-core": "^2.0.0",
+      "winston": "^3.2.1"
    }
 }
