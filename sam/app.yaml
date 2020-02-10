@@ -7,6 +7,14 @@ Parameters:
       Type: String
       Description: Used in resource naming to associate resources with a stack
 
+   DependecyLayerName:
+      Type: String
+      Description: Name of the lambda layer containing large depencencies
+
+   DependecyLayerVersion:
+      Type: Number
+      Description: Layer version
+
    DriverFunctionMemorySize:
       Type: Number
       Description: Lambda function memory size setting in megabytes
@@ -30,6 +38,8 @@ Parameters:
 Globals:
    Function:
       Runtime: nodejs12.x
+      Layers:
+         - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:layer:${DependecyLayerName}:${DependecyLayerVersion}
 
 Resources:
    PdfBucket:
@@ -58,8 +68,8 @@ Resources:
       Type: AWS::Serverless::Function
       Properties:
          CodeUri: ../dist.zip
-         Role: !Sub ${DriverRole.Arn}
          Handler: src/index.handler
+         Role: !Sub ${DriverRole.Arn}
          Timeout: !Ref DriverFunctionTtlInSeconds
          MemorySize: !Ref DriverFunctionMemorySize
          Description: Run Chromium in a Lambda
@@ -141,6 +151,7 @@ Resources:
                  Action:
                     - s3:*
                  Resource:
-                    - !GetAtt PdfBucket.Arn
+                    - !Sub arn:aws:s3:::${PdfBucket}
+                    - !Sub arn:aws:s3:::${PdfBucket}/*
          Roles:
             - !Ref PdfMergerRole

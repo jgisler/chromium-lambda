@@ -4,19 +4,20 @@
    "description": "Run Chrome in an AWS lambda function",
    "main": "src/index.js",
    "config": {
+      "zip_file": "dist.zip",
       "scripts_dir": "scripts/npm",
       "scripts_repo": "https://github.com/jgisler/npm-scripts"
    },
    "scripts": {
-      "getScripts": "git clone ${npm_package_config_scripts_repo} ${npm_package_config_scripts_dir}",
-      "clean": "rimraf node_modules *-out.yaml dist.zip scripts/npm && npm install && npm run getScripts",
-      "zip": "${npm_package_config_scripts_dir}/zip.sh",
-      "deploy": "${npm_package_config_scripts_dir}/cf_deploy.sh $1",
-      "package": "npm run zip && ${npm_package_config_scripts_dir}/cf_package.sh $1",
+      "scripts": "rimraf ${npm_package_config_scripts_dir} && git clone ${npm_package_config_scripts_repo} ${npm_package_config_scripts_dir}",
       "config": "npx rimraf .env && ${npm_package_config_scripts_dir}/config.js $1",
+      "build": "npm install --production && npm prune --production && npm dedupe",
+      "zip": "npx rimraf ${npm_package_config_zip_file} && zip -r ${npm_package_config_zip_file} .env package.json src/ node_modules/ -x node_modules/.bin/ node_modules/.cache/",
+      "package": "npx rimraf layer-out.yaml && ${npm_package_config_scripts_dir}/cf_package.sh app",
+      "deploy": "${npm_package_config_scripts_dir}/cf_deploy.sh app",
       "test": "npx mocha test/ --recursive",
       "deploy:": "npm run cf:deploy $1 && npm install",
-      "deploy:test": "npm install && npm run config test && npm run package app && npm run deploy app"
+      "deploy:test": "npm install && npm run config test && npm run build && npm run zip && npm run package && npm run deploy"
    },
    "repository": {
       "type": "git",
@@ -39,17 +40,16 @@
       "aws-sdk": "^2.614.0",
       "aws-sdk-mock": "^5.0.0",
       "chai": "^4.2.0",
+      "chrome-aws-lambda": "^2.0.2",
       "config": "^3.2.5",
       "js-yaml": "^3.13.1",
       "mocha": "^7.0.1",
-      "modclean": "^3.0.0-beta.1"
+      "puppeteer-core": "^2.0.0",
+      "winston": "^3.2.1"
    },
    "dependencies": {
       "axios": "^0.19.2",
-      "chrome-aws-lambda": "^2.0.2",
       "express": "^4.17.1",
-      "node-pdftk": "^2.1.2",
-      "puppeteer-core": "^2.0.0",
-      "winston": "^3.2.1"
+      "node-pdftk": "^2.1.2"
    }
 }

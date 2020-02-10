@@ -1,7 +1,7 @@
 const express = require('express');
 const chromium = require('chrome-aws-lambda');
 
-exports.handler = async (event, context) => {
+module.exports.handler = async (event, context) => {
    let server, client, result;
    try {
       [server, client] = await Promise.all([startServer(), startClient()]);

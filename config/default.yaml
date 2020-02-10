@@ -7,6 +7,10 @@ Environment:
    Profile: default
 CloudFormation:
    EnvironmentName: ${Environment}-${Region}
+
+   DependecyLayerName: chromium-lambda-dependencies
+   DependecyLayerVersion: 5
+
    LogRetentionInDays: 7
    DriverFunctionMemorySize: 3008
    DriverFunctionTtlInSeconds: 120

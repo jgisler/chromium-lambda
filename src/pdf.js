@@ -1,13 +1,13 @@
 const { S3 } = require('aws-sdk');
 const pdftk = require('node-pdftk');
-const { PassThrough } = require('stream');
+pdftk.configure = { tempDir: '/tmp' };
 
 const s3 = new S3();
 const axios = require('axios').default;
 const { getLogger, setContext } = require('./logger');
 
 let logger;
-exports.merger = async (event, context) => {
+module.exports.merger = async (event, context) => {
    setContext(context);
    logger = getLogger('merger');
 
@@ -23,13 +23,29 @@ exports.merger = async (event, context) => {
    //    })
    // );
 
-   return await mergePdfs('geogratis.pdf', 'flightPlan.pdf');
+   return await mergePdfBuffers('geogratis.pdf', 'flightPlan.pdf');
 };
 
-async function mergePdfs(...keys) {
+async function mergePdfBuffers(...keys) {
    try {
       const pdfBuffers = await Promise.all(keys.map(key => getObjectContent(key)));
-      await pdftk.input(pdfBuffers).output('./experience.pdf');
+      const buffer = await pdftk.input(pdfBuffers).output();
+      return s3Upload('merged.pdf', buffer);
+   } catch (error) {
+      logger.error({ mergePdfs: { keys, error } });
+      throw error;
+   }
+}
+
+// Don't cross the streams??
+async function mergePdfStreams(...keys) {
+   try {
+      const pdfStreams = await Promise.all(keys.map(key => getObjectStream(key)));
+      const buffer = await pdftk
+         .input(pdfStreams)
+         .cat()
+         .output();
+      return s3Upload('merged.pdf', buffer);
    } catch (error) {
       logger.error({ mergePdfs: { keys, error } });
       throw error;
