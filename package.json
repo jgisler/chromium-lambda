@@ -37,7 +37,7 @@
    },
    "homepage": "https://github.com/jgisler/chromium-lambda#readme",
    "devDependencies": {
-      "aws-sdk": "^2.614.0",
+      "aws-sdk": "^2.814.0",
       "aws-sdk-mock": "^5.0.0",
       "chai": "^4.2.0",
       "chrome-aws-lambda": "^2.0.2",
