@@ -43,7 +43,7 @@
       "chrome-aws-lambda": "^2.0.2",
       "config": "^3.2.5",
       "js-yaml": "^3.13.1",
-      "mocha": "^7.0.1",
+      "mocha": "^10.2.0",
       "puppeteer-core": "^2.0.0",
       "winston": "^3.2.1"
    },
