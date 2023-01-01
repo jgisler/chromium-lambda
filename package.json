@@ -41,7 +41,7 @@
       "aws-sdk-mock": "^5.0.0",
       "chai": "^4.2.0",
       "chrome-aws-lambda": "^2.0.2",
-      "config": "^3.2.5",
+      "config": "^3.3.8",
       "js-yaml": "^3.13.1",
       "mocha": "^7.0.1",
       "puppeteer-core": "^2.0.0",
